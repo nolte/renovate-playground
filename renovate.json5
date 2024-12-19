@@ -2,16 +2,16 @@
   extends: [
     'config:recommended',
     'group:all',
-    "config:recommended",
-    ":dependencyDashboard",
-    ":disableRateLimiting",
-    "docker:enableMajor",
-    ":enablePreCommit",
-    "github>bjw-s/renovate-config:automerge-github-actions",
-    "github>bjw-s/renovate-config:commit-message",
-    "github>bjw-s/renovate-config:pr-labels",
-    "github>bjw-s/renovate-config:semantic-commits",
-    "github>bjw-s/renovate-config:custom-managers.json5"
+    'config:recommended',
+    ':dependencyDashboard',
+    ':disableRateLimiting',
+    'docker:enableMajor',
+    ':enablePreCommit',
+    'github>bjw-s/renovate-config:automerge-github-actions',
+    'github>bjw-s/renovate-config:commit-message',
+    'github>bjw-s/renovate-config:pr-labels',
+    'github>bjw-s/renovate-config:semantic-commits',
+    'github>bjw-s/renovate-config:custom-managers.json5',
   ],
   schedule: 'before 5am every weekday',
   argocd: {
@@ -19,20 +19,25 @@
       'src/applications/.*/deploy/argocd/application.*\\.yaml',
     ],
   },
-  "packageRules": [
+  packageRules: [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["esphome"],
-      "versioning": ["azure-rest-api"],
-    }
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'esphome',
+      ],
+      versioning: 'azure-rest-api',
+    },
   ],
   customManagers: [
     {
       customType: 'regex',
       description: 'Yet another regex',
       fileMatch: 'src/applications/.*/deploy/argocd/application.*\\.yaml',
-      "matchStrings": ["repository:\\s?\"?(?<depName>[^\\s\"]*)\"?\\s*?tag:\\s?\"?(?<currentValue>[^\\s\"]*)\"?"],
-
+      matchStrings: [
+        'repository:\\s?"?(?<depName>[^\\s"]*)"?\\s*?tag:\\s?"?(?<currentValue>[^\\s"]*)"?',
+      ],
       datasourceTemplate: 'docker',
     },
   ],
