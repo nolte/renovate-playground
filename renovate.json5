@@ -9,4 +9,16 @@
       'src/applications/.*/deploy/argocd/application.*\\.yaml',
     ],
   }, 
+  customManagers: [
+    {
+      description: "Yet another regex",
+      fileMatch: 'src/applications/.*/deploy/argocd/application.*\\.yaml',
+      matchStringsStrategy: "combination",
+      matchStrings: [
+        "image: \"(?<registryUrl>harbor.ourcompany.com\/?)(?<depName>.*?)\"\n",
+        "tag: \"?(?<currentValue>.*)?\""
+      ],
+      datasourceTemplate: "docker"
+    },
+  ],  
 }
