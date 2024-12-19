@@ -87,7 +87,7 @@ spec:
                   - secretRef:
                       name: esphome-config
                 image:
-                  repository: esphome/esphome
+                  repository: docker.io/esphome/esphome
                   # https://hub.docker.com/r/esphome/esphome/tags
                   tag: "2024.11"
         service:
