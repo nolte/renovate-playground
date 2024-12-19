@@ -16,7 +16,7 @@
       fileMatch: 'src/applications/.*/deploy/argocd/application.*\\.yaml',
       matchStringsStrategy: 'combination',
       matchStrings: [
-        'image: "(?<registryUrl>harbor.ourcompany.com/?)(?<depName>.*?)"\n',
+        'repository: "(?<registryUrl>harbor.ourcompany.com/?)(?<depName>.*?)"\n',
         'tag: "?(?<currentValue>.*)?"',
       ],
       datasourceTemplate: 'docker',
