@@ -24,9 +24,6 @@
       matchDatasources: [
         'docker',
       ],
-      matchPackageNames: [
-        'docker.io/esphome/esphome',
-      ],
       versioning: 'docker',
     },
   ],
