@@ -1,0 +1,127 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-assistant
+spec:
+  destination:
+    name: in-cluster
+    namespace: home-assistant
+  project: default
+  sources:
+  - path: charts/stable/projectcontour-mixin/
+    repoURL: https://github.com/nolte/helm-charts-repo.git
+    targetRevision: main
+    helm:
+     releaseName: projectcontour-mixin
+     parameters:
+       - name: httpProxy.create
+         value: "false"
+       - name: httpProxy.fqdn
+         value: home-assistant.smart-home.k8sservices.local
+     values: |-
+       httpProxy:
+         create: false
+         fqdn: home-assistant.smart-home.k8sservices.local
+         tls:
+           secretName: cert-manager/wildcard-duckdns-org-tls
+         routes:
+           - services:
+             - name: home-assistant
+               port: 8123
+           - conditions:
+             - prefix: /api
+             enableWebsockets: true # Setting this to true enables websocket for all paths that match /websocket
+             services:
+             - name: home-assistant
+               port: 8123
+
+  - chart: app-template
+    repoURL: https://bjw-s.github.io/helm-charts
+    targetRevision: 3.5.1
+    helm:
+      releaseName: home-assistant
+      parameters: []
+      values: |
+        service:
+          main:
+            controller: main
+            ports:
+              http:
+                port: 8123
+        controllers:
+            main:
+              containers:
+                main:
+                  envFrom:
+                    - secret: home-assistant-creds
+                  image:
+                    # https://github.com/home-assistant/core/releases
+                    repository: ghcr.io/home-assistant/home-assistant
+                    tag: 2024.12.3
+                  probes:
+                    liveness:
+                      enabled: true
+                      custom: false
+                      type: TCP
+                      spec:
+                        initialDelaySeconds: 0
+                        periodSeconds: 10
+                        timeoutSeconds: 1
+                        failureThreshold: 3
+
+                    # -- Readiness probe configuration
+                    readiness:
+                      enabled: true
+                      custom: false
+                      type: TCP
+                      spec:
+                        initialDelaySeconds: 0
+                        periodSeconds: 10
+                        timeoutSeconds: 1
+                        failureThreshold: 3
+
+                    # -- Startup probe configuration
+                    startup:
+                      enabled: true
+                      custom: false
+                      type: TCP
+                      spec:
+                        initialDelaySeconds: 0
+                        timeoutSeconds: 1
+                        ## This means it has a maximum of 5*30=150 seconds to start up before it fails
+                        periodSeconds: 5
+                        failureThreshold: 30
+
+
+              type: statefulset
+              annotations:
+                reloader.stakater.com/auto: "true"
+
+            # resources:
+            #   requests:
+            #     cpu: 126m
+            #     memory: 411M
+            #   limits:
+            #     memory: 4417M
+
+        defaultPodOptions:
+          hostNetwork: true
+
+        persistence:
+          config:
+            enabled: true
+            #type: emptyDir
+            #type: hostPath
+            accessMode: "ReadWriteOnce"
+            size: 20Gi
+            globalMounts:
+              - path: /config
+                readOnly: false
+            # hostPath: /var/mnt/storage/home-assistant
+        # persistence:
+        #   # Configure the main configuration storage location
+        #   config:
+        #     enabled: true
+        #     existingClaim: home-assistant-config
+        #     globalMounts:
+        #       - path: /config

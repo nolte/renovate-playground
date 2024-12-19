@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mosquitto
+  #annotations:
+  #  argocd.argoproj.io/sync-wave: "-33"
+spec:
+  destination:
+    name: in-cluster
+    namespace: mosquitto
+  project: default
+  sources:
+  - chart: app-template
+    repoURL: https://bjw-s.github.io/helm-charts
+    targetRevision: 3.5.1
+    helm:
+      releaseName: mosquitto
+      parameters: []
+      values: |
+        controllers:
+            main:
+              containers:
+                main:
+                  image:
+                    repository: eclipse-mosquitto
+                    tag: 2.0.15
+        service:
+          main:
+            controller: main
+            annotations:
+              metallb.universe.tf/address-pool: production-public-ips
+            ports:
+              http:
+                port: 1883
+                protocol: TCP
+        configMaps:
+          config:
+            enabled: true
+            data:
+              mosquitto.conf: |
+                allow_anonymous true
+                listener 1883
+                persistence true
+                persistence_location /mosquitto/data
+                autosave_interval 1800
+
+        persistence:
+          data:
+            enabled: true
+            globalMounts:
+              - path: /mosquitto/data
+                readOnly: false    
+            type: emptyDir
+          configinc:
+            enabled: true
+            globalMounts:
+              - path: /mosquitto/config
+                readOnly: false    
+            type: configMap
+            name: mosquitto-config
+        
