@@ -27,7 +27,7 @@
       matchPackageNames: [
         'docker.io/esphome/esphome',
       ],
-      versioning: 'loose',
+      versioning: 'docker',
     },
   ],
   customManagers: [
