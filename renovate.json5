@@ -22,7 +22,7 @@
   "packageRules": [
     {
       "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["digest"],
+      "matchUpdateTypes": ["azure-rest-api"],
     }
   ],
   customManagers: [
