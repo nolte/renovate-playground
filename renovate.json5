@@ -25,7 +25,7 @@
         'docker',
       ],
       matchPackageNames: [
-        'esphome/esphome',
+        'docker.io/esphome/esphome',
       ],
       versioning: 'loose',
     },
