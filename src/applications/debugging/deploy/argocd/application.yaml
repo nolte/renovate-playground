@@ -1,0 +1,80 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: esphome
+  #annotations:
+  #  argocd.argoproj.io/sync-wave: "-33"
+spec:
+  destination:
+    name: in-cluster
+    namespace: esphome
+  project: default
+  sources:
+  - helm:
+      releaseName: projectcontour-mixin
+      parameters:
+        - name: httpProxy.create
+          value: "false"
+        - name: httpProxy.fqdn
+          value: esphome.smart-home.k8sservices.local
+      valuesObject:
+        httpProxy:
+          create: false
+          fqdn: argo.smart-home.k8sservices.local
+          tls:
+            secretName: cert-manager/wildcard-duckdns-org-tls
+          routes:
+          - enableWebsockets: true
+            services:
+            - name: esphome
+              port: 6052
+    path: charts/stable/projectcontour-mixin/
+    repoURL: https://github.com/nolte/helm-charts-repo.git
+    targetRevision: main
+  - chart: app-template
+    repoURL: https://bjw-s.github.io/helm-charts
+    targetRevision: 3.5.1
+    helm:
+      releaseName: esphome
+      valuesObject:
+        controllers:
+          main:
+            type: statefulset
+            annotations:
+              reloader.stakater.com/auto: "true"
+            containers:
+              main:
+                env:
+                  - name: "TZ"
+                    value: "Europe/Berlin"
+                envFrom:
+                  - secretRef:
+                      name: esphome-config
+                image:
+                  repository: docker.io/esphome/esphome
+                  # https://hub.docker.com/r/esphome/esphome/tags
+                  tag: "2024.11"
+        service:
+          main:
+            controller: main
+            ports:
+              http:
+                port: 6052
+        defaultPodOptions:
+          hostNetwork: true
+          dnsConfig:
+            nameservers:
+              - 192.168.178.1
+        persistence:
+          config:
+            enabled: true
+            type: emptyDir
+            advancedMounts:
+              main: # the controller with the "main" identifier
+                main:
+                  - path: /config
+                    subPath: repo
+                gitinit:
+                  - path: /config
+                gitsync:
+                  - path: /config
