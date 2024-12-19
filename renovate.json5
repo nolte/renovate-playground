@@ -8,17 +8,18 @@
     fileMatch: [
       'src/applications/.*/deploy/argocd/application.*\\.yaml',
     ],
-  }, 
+  },
   customManagers: [
     {
-      description: "Yet another regex",
+      customType: 'regex',
+      description: 'Yet another regex',
       fileMatch: 'src/applications/.*/deploy/argocd/application.*\\.yaml',
-      matchStringsStrategy: "combination",
+      matchStringsStrategy: 'combination',
       matchStrings: [
-        "image: \"(?<registryUrl>harbor.ourcompany.com\/?)(?<depName>.*?)\"\n",
-        "tag: \"?(?<currentValue>.*)?\""
+        'image: "(?<registryUrl>harbor.ourcompany.com/?)(?<depName>.*?)"\n',
+        'tag: "?(?<currentValue>.*)?"',
       ],
-      datasourceTemplate: "docker"
+      datasourceTemplate: 'docker',
     },
-  ],  
+  ],
 }
