@@ -27,7 +27,7 @@
       matchPackageNames: [
         'esphome/esphome',
       ],
-      versioning: 'azure-rest-api',
+      versioning: 'loose',
     },
   ],
   customManagers: [
