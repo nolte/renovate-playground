@@ -19,12 +19,16 @@
       'src/applications/.*/deploy/argocd/application.*\\.yaml',
     ],
   },
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+    }
+  ],
   customManagers: [
     {
       customType: 'regex',
       description: 'Yet another regex',
       fileMatch: 'src/applications/.*/deploy/argocd/application.*\\.yaml',
-      matchStringsStrategy: 'combination',
       matchStrings: [
         'repository: "(?<registryUrl>harbor.ourcompany.com/?)(?<depName>.*?)"\n',
         'tag: "?(?<currentValue>.*)?"',
